@@ -33,5 +33,7 @@ Than we execute m2p.py with our log as argument:
 **Sampe result**
 
 ![1](https://user-images.githubusercontent.com/38978231/41800050-28d4c842-7674-11e8-8864-48b7ae617888.png)
+
 Generated `index.html` for inspecting the result:
+
 ![2](https://user-images.githubusercontent.com/38978231/41800052-290bb4b0-7674-11e8-8aee-edc60fe829b2.png)
