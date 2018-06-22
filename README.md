@@ -1,6 +1,8 @@
 # m2p.py
-Convert your masscan-results (80,443,8080) into screenshots for better analysis  
-I need your help! There are currently two problems, if you have any idea/fix submit a pull-request:
+Convert your masscan-results (80,443,8080) into screenshots for better analysis .
+
+I need your help!  
+There are currently two problems, if you have any idea/fix submit a pull-request:
 
 * chromedriver returning a blank-screenshot when attempting to save TLS::self-signed websites
 * There is a huge session-timeout at the end of long logs, resulting in a loss of screenshots
