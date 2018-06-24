@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-# m2p.py (v.0.1) - Screenshot your masscan-results via chromedriver in python
+# m2p.py (v.0.2) - Screenshot your masscan-results via chromedriver in python
 # written by SI9INT (twitter.com/si9int) | si9int.sh
 
 import os, json, argparse
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.common.exceptions import TimeoutException
 
@@ -30,13 +31,18 @@ def initDriver():
 		'--disable-dev-shm-usage',
 		'--no-sandbox',
 		'--disable-extensions',
-		'--disable-gpu'
+		'--disable-gpu',
+		'--ignore-certificate-errors'
 	]
 
 	for argument in arguments:
 		options.add_argument(argument)
+	
+	capabilities = DesiredCapabilities.CHROME.copy()
+	capabilities['acceptSslCerts'] = True
+	capabilities['acceptInsecureCerts'] = True
 
-	driver = webdriver.Chrome(DVR_PATH, chrome_options=options)
+	driver = webdriver.Chrome(DVR_PATH, chrome_options=options, desired_capabilities=capabilities)
 	driver.set_page_load_timeout(12)
 
 	return driver
@@ -64,7 +70,7 @@ def readLog(file):
 			pass
 
 def appendHTML(name, url):
-	overview = open(PIC_PATH + 'index.html', 'a')
+	overview = open(PIC_PATH + args.file + '/index.html', 'a')
 
 	image = '<p><img src="' + str(name) + '.png"></p>'
 	link  = '<h2><a href="' + url + '" target="_blank">' + url + '</a></h2>'
@@ -75,7 +81,7 @@ def appendHTML(name, url):
 def makeScreen(name, url, driver):
 	try:
 		driver.get(url)
-		screenshot = driver.save_screenshot(PIC_PATH + str(name) + '.png')
+		screenshot = driver.save_screenshot(PIC_PATH + args.file + '/' + str(name) + '.png')
 		appendHTML(name, url)
 	
 		print('[-] Screenshooted: ' + url)
@@ -89,13 +95,12 @@ def makeScreen(name, url, driver):
 		err.append(url)
 		return False
 
-if not os.path.isdir(PIC_PATH):
-	os.makedirs(PIC_PATH)
+if not os.path.isdir(PIC_PATH + args.file):
+	os.makedirs(PIC_PATH + args.file)
 
 readLog(args.file)
 
 for number,url in enumerate(tmp):
-	
 	if not makeScreen(number, url, driver):
 		driver.close()
 		driver = initDriver()
@@ -103,10 +108,10 @@ for number,url in enumerate(tmp):
 
 driver.quit()
 
-print('[-] Overview created: ' + PIC_PATH + 'index.html')
+print('[-] Overview created: ' + PIC_PATH + args.file + 'index.html')
 print('[!] Failed URLS:\n--')
 
 for error in err:
 	print('\t' + error)
 
-os.system('xdg-open ' + PIC_PATH + 'index.html')
+os.system('xdg-open ' + PIC_PATH + args.file + 'index.html')
