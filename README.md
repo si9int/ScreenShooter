@@ -1,10 +1,6 @@
 # m2p.py
 Convert your masscan-results (80,443,8080) into screenshots for better analysis .
-
-I need your help!  
-If you have any idea/fix submit a pull-request:
-
-* **chromedriver returning a blank-screenshot when attempting to save TLS::self-signed websites**
+**v.0.2 all issues have been fixed!**
 
 **Installation**
 
