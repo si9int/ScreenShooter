@@ -5,6 +5,8 @@
 import os, json, argparse
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.common.exceptions import TimeoutException
 
 # Enter the path to your chromedriver and screenshot-directory
 DVR_PATH = '/usr/bin/chromedriver'
@@ -28,7 +30,7 @@ def initDriver():
 		'--disable-dev-shm-usage',
 		'--no-sandbox',
 		'--disable-extensions',
-		'--disable-extensions'
+		'--disable-gpu'
 	]
 
 	for argument in arguments:
@@ -70,18 +72,22 @@ def appendHTML(name, url):
 	global htm
 	overview.write(link + image)
 
-def makeScreen(name, url):
+def makeScreen(name, url, driver):
 	try:
 		driver.get(url)
 		screenshot = driver.save_screenshot(PIC_PATH + str(name) + '.png')
 		appendHTML(name, url)
 	
 		print('[-] Screenshooted: ' + url)
-	except Exception as e:
-		print('[!] Error occured on: ' + url + '\n' + str(e))
+		return True
+	except UnexpectedAlertPresentException as e:
+		print('[!] Error: ' + str(e))
 		err.append(url)
-		
-		pass
+		return False
+	except TimeoutException as t:
+		print('[!] Timeout: ' + str(t))
+		err.append(url)
+		return False
 
 if not os.path.isdir(PIC_PATH):
 	os.makedirs(PIC_PATH)
@@ -89,7 +95,11 @@ if not os.path.isdir(PIC_PATH):
 readLog(args.file)
 
 for number,url in enumerate(tmp):
-	makeScreen(number, url)
+	
+	if not makeScreen(number, url, driver):
+		driver.close()
+		driver = initDriver()
+		print('[!] Driver restarted')
 
 driver.quit()
 
