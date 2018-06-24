@@ -114,4 +114,4 @@ print('[!] Failed URLS:\n--')
 for error in err:
 	print('\t' + error)
 
-os.system('xdg-open ' + PIC_PATH + args.file + 'index.html')
+os.system('xdg-open ' + PIC_PATH + args.file + '/index.html')
