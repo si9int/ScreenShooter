@@ -1,6 +1,6 @@
-# m2p.py
-Convert your masscan-results (80,443,8080) into screenshots for better analysis .
-**v.0.2 all issues have been fixed!**
+# ScreenShooter
+Convert your masscan/subdomain-scan results (80,443,8080) into screenshots for better analysis .
+**v.0.3 all issues have been fixed!**
 
 **Installation**
 
@@ -15,21 +15,24 @@ apt install chromium
 **Usage**
 
 ```
-usage: m2p.py [-h] file
+usage: exe.py [-h] [-s] file
 
 positional arguments:
-  file        masscan result
+  file             masscan result
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -h, --help       show this help message and exit
+  -s, --subdomain  result of a subdomain-scan
+
 ```
+ScreenShooter will take a masscan-result by default. If you want to use a list of subdomains add `-s` as additional parameter.
 
 **Example**
 
 First we do a masscan (it's important to save the result in JSON)
 `masscan 127.0.0.1/24 -p80,8080,443 -oJ output.json`
-Than we execute m2p.py with our log as argument:
-`python3 m2p.py output.json`
+Than we execute exe.py with our log as argument:
+`python3 exe.py output.json`
 
 **Sampe result**
 
