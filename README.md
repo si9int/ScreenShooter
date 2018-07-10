@@ -1,5 +1,5 @@
 # ScreenShooter
-Convert your masscan/subdomain-scan results (80,443,8080) into screenshots for better analysis .
+Convert your masscan/subdomain-scan results (80,443,8080) into screenshots for better analysis.  
 **v.0.3 all issues have been fixed!**
 
 **Installation**
@@ -9,7 +9,7 @@ pip3 install selenium
 apt install chromium
 # download latest version of chromedriver: http://chromedriver.chromium.org/downloads
 # unpack to e.g. /usr/bin/
-# configure your driver-path (DVR_PATH) and image-path (PIC_PATH) in m2p.py
+# configure your driver-path (DVR_PATH) and image-path (PIC_PATH) in exe.py
 ```
 
 **Usage**
@@ -25,7 +25,7 @@ optional arguments:
   -s, --subdomain  result of a subdomain-scan
 
 ```
-ScreenShooter will take a masscan-result by default. If you want to use a list of subdomains add `-s` as additional parameter.
+"ScreenShooter" will take a masscan-result by default. If you want to use a list of subdomains add `-s` as additional parameter.
 
 **Example**
 
@@ -41,3 +41,4 @@ Than we execute exe.py with our log as argument:
 Generated `index.html` for inspecting the result:
 
 ![2](https://user-images.githubusercontent.com/38978231/41800052-290bb4b0-7674-11e8-8aee-edc60fe829b2.png)
+ 
