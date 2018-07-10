@@ -2,12 +2,14 @@
 # m2p.py (v.0.2) - Screenshot your masscan-results via chromedriver in python
 # written by SI9INT (twitter.com/si9int) | si9int.sh
 
-import os, json, argparse
+import os, json, argparse, socket
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.common.exceptions import TimeoutException
+
+from requests.packages.urllib3.exceptions import NewConnectionError
 
 # Enter the path to your chromedriver and screenshot-directory
 DVR_PATH = '/usr/bin/chromedriver'
@@ -16,12 +18,13 @@ PIC_PATH = './screens/'
 parser = argparse.ArgumentParser()
 
 parser.add_argument('file', help = 'masscan result', type = str)
+parser.add_argument('-s', '--subdomain', help = 'result of a subdomain-scan', action = 'store_true')
+
 args = parser.parse_args()
 
 def initDriver():
 	options = Options()
 
-	# You can remove/edit optional arguments here
 	# disable-dev-shm-usage: Debian-bugfix
 
 	arguments = [
@@ -47,6 +50,7 @@ def initDriver():
 
 	return driver
 
+basename = PIC_PATH + os.path.basename(args.file)
 driver = initDriver()
 tmp = []
 err = []
@@ -69,10 +73,42 @@ def readLog(file):
 			print('[!] Error reading log-entry')
 			pass
 
-def appendHTML(name, url):
-	overview = open(PIC_PATH + args.file + '/index.html', 'a')
+def readSubs(file):
+	log = open(file).readlines()
 
-	image = '<p><img src="' + str(name) + '.png"></p>'
+	for line in log:
+		# add your ports here if you want custom web-instances being scanned
+		ports = [80, 443]
+		methods = ['http://', 'https://']
+		line = line.rstrip()
+
+		for i,port in enumerate(ports):
+			try:
+				s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				s.settimeout(2)
+				result = s.connect_ex((line, port))
+				
+				if result == 0:
+					print('[-] Online: ' + line + ':' + str(port))
+
+					if port == 8080:
+						tmp.append(methods[i] + line + ':8080')
+					else:
+						tmp.append(methods[i] + line)
+				
+				s.close()
+			except:
+				print('[!] Error on: ' + line)
+				pass
+
+def appendHTML(name, url):
+	if not os.path.isfile(basename + '/index.html'):
+		overview = open(basename + '/index.html', 'w')
+		os.system('xdg-open ' + basename + '/index.html')
+	else:
+		overview = open(basename + '/index.html', 'a')
+
+	image = '<p><img src="' + str(name) + '.png"></p><hr>'
 	link  = '<h2><a href="' + url + '" target="_blank">' + url + '</a></h2>'
 
 	global htm
@@ -81,7 +117,7 @@ def appendHTML(name, url):
 def makeScreen(name, url, driver):
 	try:
 		driver.get(url)
-		screenshot = driver.save_screenshot(PIC_PATH + args.file + '/' + str(name) + '.png')
+		screenshot = driver.save_screenshot(basename + '/' + str(name) + '.png')
 		appendHTML(name, url)
 	
 		print('[-] Screenshooted: ' + url)
@@ -95,10 +131,13 @@ def makeScreen(name, url, driver):
 		err.append(url)
 		return False
 
-if not os.path.isdir(PIC_PATH + args.file):
-	os.makedirs(PIC_PATH + args.file)
+if not os.path.isdir(basename):
+	os.makedirs(basename)
 
-readLog(args.file)
+if args.subdomain:
+	readSubs(args.file)
+else:
+	readLog(args.file)
 
 for number,url in enumerate(tmp):
 	if not makeScreen(number, url, driver):
@@ -108,10 +147,8 @@ for number,url in enumerate(tmp):
 
 driver.quit()
 
-print('[-] Overview created: ' + PIC_PATH + args.file + 'index.html')
+print('[-] Overview created: ' + basename + '/index.html')
 print('[!] Failed URLS:\n--')
 
 for error in err:
 	print('\t' + error)
-
-os.system('xdg-open ' + PIC_PATH + args.file + '/index.html')
